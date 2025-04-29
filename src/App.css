@@ -7,6 +7,18 @@
   --hover-color: #0056b3;
   --accent-color: #e50914;
   --secondary-text-color: #cccccc;
+
+  /* Spacing variables */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-xxl: 3rem;
+
+  /* Container widths */
+  --container-width: 90%;
+  --container-max-width: 1400px;
 }
 
 * {
@@ -19,17 +31,21 @@ body {
   font-family: 'Courier New', Courier, monospace;
   background-color: var(--background-color);
   color: var(--text-color);
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .App {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .main-content {
   flex: 1;
-  padding: 20px 40px;
+  padding: var(--spacing-md) var(--spacing-lg);
   width: 100%;
   max-width: 100%;
 }
@@ -68,8 +84,36 @@ body {
 }
 
 /* Responsive design */
-@media (max-width: 768px) {
+@media (max-width: 480px) {
   .main-content {
-    padding: 10px;
+    padding: var(--spacing-sm);
+  }
+
+  .loading-spinner {
+    width: 30px;
+    height: 30px;
+  }
+
+  .error-message {
+    padding: var(--spacing-sm);
+    margin: var(--spacing-md) 0;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .main-content {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .main-content {
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+}
+
+@media (min-width: 1025px) {
+  .main-content {
+    padding: var(--spacing-lg) var(--spacing-xl);
   }
 }
