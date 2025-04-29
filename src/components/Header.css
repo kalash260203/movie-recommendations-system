@@ -1,0 +1,111 @@
+.header {
+  width: 80%;
+  margin: 0 auto;
+  background-color: var(--primary-color);
+  padding: 20px 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+  border-bottom: 1px solid #333;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 40px;
+}
+
+.logo {
+  text-decoration: none;
+}
+
+.logo h1 {
+  color: var(--accent-color);
+  font-size: 2.2rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.search-form {
+  display: flex;
+  width: 40%;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: none;
+  background-color: #222;
+  color: white;
+  border-radius: 4px 0 0 4px;
+  font-size: 1rem;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.search-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-color);
+}
+
+.search-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff; /* White text */
+  border: none;
+  padding: 12px 20px;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-weight: bold;
+  font-family: 'Courier New', Courier, monospace;
+  background-color: var(--accent-color); /* Red */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.25);
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 15px; /* Increased gap between buttons */
+}
+
+.nav-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 1.2rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  background-color: var(--accent-color); /* Red */
+  border: none;
+  border-radius: 9999px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  color: #ffffff; /* White text */
+  cursor: pointer;
+  font-family: 'Courier New', Courier, monospace;
+  transition: transform 0.2s ease;
+}
+
+.nav-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .search-form {
+    width: 100%;
+  }
+
+  .nav-buttons {
+    margin-top: 10px;
+  }
+}
