@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // TMDB API configuration
-const TMDB_API_KEY = '5cca7546432bdc71cb0a6af5beab0e16'; // Using the key from your .env file
+const TMDB_API_KEY = 'ac7db6ab94bf8bf241665724be538cb7';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
 // Create axios instance for TMDB API
