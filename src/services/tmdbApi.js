@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // TMDB API configuration
-const TMDB_API_KEY = '5cca7546432bdc71cb0a6af5beab0e16'; // Using the key from your .env file
+const TMDB_API_KEY = 'ac7db6ab94bf8bf241665724be538cb7';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
 // Create axios instance for TMDB API
@@ -51,7 +51,7 @@ export const getMovieDetails = async (movieId) => {
   try {
     const response = await tmdbAxios.get(`/movie/${movieId}`, {
       params: {
-        append_to_response: 'credits,similar,keywords',
+        append_to_response: 'credits,similar,keywords,videos',
       },
     });
     return response.data;
@@ -89,6 +89,28 @@ export const getGenres = async () => {
     return response.data;
   } catch (error) {
     console.error('Error fetching genres:', error);
+    throw error;
+  }
+};
+
+export const getUpcomingMovies = async (page = 1) => {
+  try {
+    const response = await tmdbAxios.get('/movie/upcoming', {
+      params: { page },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching upcoming movies:', error);
+    throw error;
+  }
+};
+
+export const getMovieVideos = async (movieId) => {
+  try {
+    const response = await tmdbAxios.get(`/movie/${movieId}/videos`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching videos for movie ID ${movieId}:`, error);
     throw error;
   }
 };

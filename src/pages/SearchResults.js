@@ -32,7 +32,7 @@ const SearchResults = () => {
   }, [query]);
 
   return (
-    <div className="search-results-container">
+    <div className="search-results-container" data-barba-namespace="search-results">
       <h1>Search Results for "{query}"</h1>
 
       {loading ? (

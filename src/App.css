@@ -1,12 +1,20 @@
 :root {
-  --primary-color: #000000;
-  --secondary-color: #01b4e4;
-  --text-color: #ffffff;
-  --background-color: #000000;
-  --card-background: #121212;
-  --hover-color: #0056b3;
-  --accent-color: #e50914;
-  --secondary-text-color: #cccccc;
+  /* Modern, attractive color scheme */
+  --primary-color: #1a1a2e;         /* Deep navy blue for primary elements */
+  --secondary-color: #16213e;       /* Slightly lighter navy for secondary elements */
+  --text-color: #ffffff;            /* White text for readability */
+  --background-color: #0f3460;      /* Rich blue background */
+  --card-background: #162447;       /* Darker blue for cards */
+  --hover-color: #00b4d8;           /* Bright cyan for hover states */
+  --accent-color: #e94560;          /* Vibrant pink-red for accents */
+  --accent-color-rgb: 233, 69, 96;   /* RGB values for accent color */
+  --secondary-text-color: #e2e2e2;  /* Light gray for secondary text */
+
+  /* Additional colors for variety */
+  --gradient-start: #0f3460;        /* Start of gradients */
+  --gradient-end: #1a1a2e;          /* End of gradients */
+  --success-color: #06d6a0;         /* Green for success messages */
+  --warning-color: #ffd166;         /* Yellow for warnings */
 
   /* Spacing variables */
   --spacing-xs: 0.25rem;
@@ -17,8 +25,9 @@
   --spacing-xxl: 3rem;
 
   /* Container widths */
-  --container-width: 90%;
-  --container-max-width: 1400px;
+  --container-width: 100%;
+  --container-max-width: 100%;
+  --container-padding: 0;
 }
 
 * {
@@ -28,11 +37,12 @@
 }
 
 body {
-  font-family: 'Courier New', Courier, monospace;
-  background-color: var(--background-color);
+  font-family: 'Space Mono', monospace;
+  background-color: var(--gradient-start);
   color: var(--text-color);
   font-size: 16px;
   line-height: 1.6;
+  will-change: transform;
 }
 
 .App {
@@ -45,9 +55,14 @@ body {
 
 .main-content {
   flex: 1;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-md) 0;
   width: 100%;
   max-width: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  /* Add padding to account for fixed header and footer */
+  padding-top: calc(60px + var(--spacing-md)); /* Adjust based on header height */
+  padding-bottom: calc(80px + var(--spacing-md)); /* Adjust based on footer height */
 }
 
 /* Loading animation */
@@ -86,7 +101,10 @@ body {
 /* Responsive design */
 @media (max-width: 480px) {
   .main-content {
-    padding: var(--spacing-sm);
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-sm);
+    padding-top: calc(50px + var(--spacing-sm)); /* Smaller header on mobile */
+    padding-bottom: calc(60px + var(--spacing-sm)); /* Smaller footer on mobile */
   }
 
   .loading-spinner {
@@ -102,18 +120,27 @@ body {
 
 @media (min-width: 481px) and (max-width: 768px) {
   .main-content {
-    padding: var(--spacing-md);
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+    padding-top: calc(55px + var(--spacing-md));
+    padding-bottom: calc(70px + var(--spacing-md));
   }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
   .main-content {
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding-left: var(--spacing-lg);
+    padding-right: var(--spacing-lg);
+    padding-top: calc(60px + var(--spacing-lg));
+    padding-bottom: calc(80px + var(--spacing-lg));
   }
 }
 
 @media (min-width: 1025px) {
   .main-content {
-    padding: var(--spacing-lg) var(--spacing-xl);
+    padding-left: var(--spacing-xl);
+    padding-right: var(--spacing-xl);
+    padding-top: calc(60px + var(--spacing-xl));
+    padding-bottom: calc(80px + var(--spacing-xl));
   }
 }
