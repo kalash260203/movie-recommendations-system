@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import { getMovieDetails, getMovieRecommendations, getMovieVideos } from '../services/tmdbApi';
+import { searchMovieTrailer } from '../services/youtubeApi';
 import { useAppContext } from '../context/AppContext';
 import YouTubePlayer from '../components/YouTubePlayer';
 import './MovieDetails.css';
@@ -18,48 +19,89 @@ const MovieDetails = () => {
     addToWatchlist,
     isInWatchlist,
     removeFromWatchlist,
-    openTrailerModal,
     searchOnGoogle,
     isAuthenticated
   } = useAppContext();
-
   useEffect(() => {
     const fetchMovieDetails = async () => {
       try {
         setLoading(true);
-        const [movieResponse, recommendationsResponse, videosResponse] = await Promise.all([
-          getMovieDetails(id),
-          getMovieRecommendations(id),
-          getMovieVideos(id)
-        ]);
+        setError(null);
 
-        setMovie(movieResponse);
-        setRecommendations(recommendationsResponse.results || []);
-        // Use similar movies as content recommendations
-        setContentRecommendations(movieResponse.similar?.results || []);
+        // Fetch movie details first
+        try {
+          const movieResponse = await getMovieDetails(id);
+          setMovie(movieResponse);
+          
+          // Only fetch recommendations and videos if movie details succeed
+          const [recommendationsResponse, videosResponse] = await Promise.all([
+            getMovieRecommendations(id).catch(error => {
+              console.warn('Failed to fetch recommendations:', error);
+              return { results: [] };
+            }),
+            getMovieVideos(id).catch(error => {
+              console.warn('Failed to fetch videos:', error);
+              return { results: [] };
+            })
+          ]);
 
-        // Find trailer from the dedicated videos endpoint
-        if (videosResponse && videosResponse.results) {
-          const trailers = videosResponse.results.filter(
-            video => video.type === 'Trailer' && video.site === 'YouTube'
-          );
-          if (trailers.length > 0) {
-            setTrailer(trailers[0]);
-          } else if (movieResponse.videos && movieResponse.videos.results) {
-            // Also check videos from the movie details as a fallback
+          setRecommendations(recommendationsResponse.results || []);
+          setContentRecommendations(movieResponse.similar?.results || []);
+
+          // Try to find a trailer from various sources
+          let trailerFound = false;
+
+          // 1. Try dedicated videos endpoint
+          if (videosResponse?.results?.length > 0) {
+            const tmdbTrailers = videosResponse.results.filter(
+              video => video.type === 'Trailer' && video.site === 'YouTube'
+            );
+            if (tmdbTrailers.length > 0) {
+              setTrailer(tmdbTrailers[0]);
+              trailerFound = true;
+            }
+          }
+
+          // 2. Check videos from movie details as fallback
+          if (!trailerFound && movieResponse.videos?.results?.length > 0) {
             const detailsTrailers = movieResponse.videos.results.filter(
               video => video.type === 'Trailer' && video.site === 'YouTube'
             );
             if (detailsTrailers.length > 0) {
               setTrailer(detailsTrailers[0]);
+              trailerFound = true;
             }
           }
-        }
 
-        setError(null);
+          // 3. If no TMDB trailers found, search YouTube
+          if (!trailerFound) {
+            try {
+              const youtubeTrailer = await searchMovieTrailer(
+                movieResponse.title,
+                movieResponse.release_date ? new Date(movieResponse.release_date).getFullYear() : null
+              );
+              if (youtubeTrailer) {
+                setTrailer({
+                  key: youtubeTrailer.id,
+                  name: youtubeTrailer.title,
+                  site: 'YouTube',
+                  type: 'Trailer',
+                  official: youtubeTrailer.title.toLowerCase().includes('official')
+                });
+                trailerFound = true;
+              }
+            } catch (ytError) {
+              console.warn('Failed to fetch YouTube trailer:', ytError);
+            }
+          }
+
+        } catch (err) {
+          console.error('Error fetching movie details:', err);
+          setError(err.message || 'Failed to load movie details. Please try again later.');
+          throw err;
+        }
       } catch (err) {
-        console.error('Error fetching movie details:', err);
-        setError('Failed to load movie details. Please try again later.');
+        // This catch block will handle any error that was re-thrown
       } finally {
         setLoading(false);
       }
