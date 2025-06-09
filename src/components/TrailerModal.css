@@ -1,0 +1,314 @@
+.trailer-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 80%; /* Use viewport width */
+  height: 85%; /* Use viewport height */
+  background-color: rgba(0, 0, 0, 0.95);
+  background-color: transparent; /* Even darker background for better focus */
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Center vertically */
+  z-index: 9999;
+  backdrop-filter: blur(10px); /* Increased blur for better focus on trailer */
+  animation: fadeIn 0.3s ease-in-out; /* Smooth fade-in animation */ 
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.trailer-modal-content {
+  background-color: var(--card-background);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 1000px; /* Slightly reduced for better focus */
+  padding: var(--spacing-md);
+  position: fixed;
+  top: 50vh; /* Use viewport height units instead of percentage */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+  border: 2px solid var(--accent-color);
+  animation: scaleIn 0.3s ease-out; /* Scale animation for better UX */
+  max-height: 80vh; /* Prevent modal from being taller than the viewport */
+  overflow: auto; /* Add scrolling to the modal content if needed */
+  z-index: 10000; /* Ensure it's above everything */
+}
+
+@keyframes scaleIn {
+  from { transform: translate(-50%, -50%) scale(0.95); opacity: 0; }
+  to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.trailer-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  font-size: 2rem;
+  color: var(--accent-color);
+  cursor: pointer;
+  z-index: 10002; /* Ensure it's above everything */
+  transition: all 0.2s ease;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.trailer-modal-close:hover {
+  color: #ffffff;
+  background: var(--accent-color);
+  transform: scale(1.1);
+}
+
+.trailer-modal-content h2 {
+  margin-bottom: var(--spacing-md);
+  color: var(--accent-color);
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  padding-right: 30px; /* Space for close button */
+}
+
+.trailer-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+  margin: 0 auto;
+  max-width: 100%;
+  background-color: #000; /* Black background for the video */
+  z-index: 10001; /* Ensure it's above the modal content */
+}
+
+.trailer-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 0, 0, 0.3); /* Subtle red border */
+}
+
+.trailer-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  min-height: 200px;
+}
+
+.trailer-loading .loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--accent-color);
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: var(--spacing-md);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.trailer-loading p {
+  color: var(--secondary-text-color);
+  font-family: 'Space Mono', monospace;
+}
+
+.trailer-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  min-height: 200px;
+}
+
+.trailer-error p {
+  color: var(--secondary-text-color);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+.google-search-button {
+  background-color: #FF0000;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: var(--spacing-md);
+}
+
+.google-search-button:hover {
+  background-color: #CC0000;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.trailer-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--spacing-md);
+}
+
+.youtube-button {
+  background-color: #FF0000;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.youtube-button:hover {
+  background-color: #CC0000;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.trailer-fallback {
+  text-align: center;
+  margin-top: var(--spacing-sm);
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
+}
+
+.trailer-fallback a {
+  color: var(--hover-color);
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.trailer-fallback a:hover {
+  color: var(--accent-color);
+}
+
+/* Video quality is now handled by YouTube player parameters */
+
+/* Movie details in modal */
+.modal-movie-details {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.modal-movie-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.modal-movie-info h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: var(--accent-color);
+  font-weight: bold;
+}
+
+.modal-movie-info .release-year {
+  margin: 0;
+  color: var(--secondary-text-color);
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .trailer-modal-content {
+    width: 95%;
+    padding: var(--spacing-sm);
+    max-height: 85vh;
+  }
+
+  .trailer-modal-content h2 {
+    font-size: 1.2rem;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .trailer-modal-close {
+    top: 5px;
+    right: 10px;
+    font-size: 1.5rem;
+  }
+
+  .modal-movie-details {
+    margin-top: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .trailer-modal-content {
+    width: 95%;
+    padding: var(--spacing-sm);
+    border-radius: 8px;
+    max-height: 90vh;
+    top: 50vh;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    position: fixed;
+  }
+
+  .trailer-modal-content h2 {
+    font-size: 1rem;
+  }
+
+  .trailer-container {
+    border-radius: 4px;
+    margin-top: 10px;
+  }
+
+  .trailer-container iframe {
+    border-radius: 4px;
+  }
+
+  @keyframes scaleIn {
+    from { transform: translate(-50%, -50%) scale(0.95); opacity: 0; }
+    to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  }
+}
+
+/* Larger screens */
+@media (min-width: 1400px) {
+  .trailer-modal-content {
+    max-width: 1400px;
+    max-height: 90vh;
+  }
+
+  .trailer-container {
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  .trailer-modal-close {
+    top: 15px;
+    right: 20px;
+    font-size: 2.5rem;
+  }
+}

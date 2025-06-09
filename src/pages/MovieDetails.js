@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
-import { getMovieDetails, getMovieRecommendations } from '../services/tmdbApi';
+import { getMovieDetails, getMovieRecommendations, getMovieVideos } from '../services/tmdbApi';
+import { searchMovieTrailer } from '../services/youtubeApi';
+import { useAppContext } from '../context/AppContext';
+import YouTubePlayer from '../components/YouTubePlayer';
 import './MovieDetails.css';
 
 const MovieDetails = () => {
@@ -11,24 +14,94 @@ const MovieDetails = () => {
   const [contentRecommendations, setContentRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [trailer, setTrailer] = useState(null);
+  const {
+    addToWatchlist,
+    isInWatchlist,
+    removeFromWatchlist,
+    searchOnGoogle,
+    isAuthenticated
+  } = useAppContext();
   useEffect(() => {
     const fetchMovieDetails = async () => {
       try {
         setLoading(true);
-        const [movieResponse, recommendationsResponse] = await Promise.all([
-          getMovieDetails(id),
-          getMovieRecommendations(id)
-        ]);
-
-        setMovie(movieResponse);
-        setRecommendations(recommendationsResponse.results || []);
-        // Use similar movies as content recommendations
-        setContentRecommendations(movieResponse.similar?.results || []);
         setError(null);
+
+        // Fetch movie details first
+        try {
+          const movieResponse = await getMovieDetails(id);
+          setMovie(movieResponse);
+          
+          // Only fetch recommendations and videos if movie details succeed
+          const [recommendationsResponse, videosResponse] = await Promise.all([
+            getMovieRecommendations(id).catch(error => {
+              console.warn('Failed to fetch recommendations:', error);
+              return { results: [] };
+            }),
+            getMovieVideos(id).catch(error => {
+              console.warn('Failed to fetch videos:', error);
+              return { results: [] };
+            })
+          ]);
+
+          setRecommendations(recommendationsResponse.results || []);
+          setContentRecommendations(movieResponse.similar?.results || []);
+
+          // Try to find a trailer from various sources
+          let trailerFound = false;
+
+          // 1. Try dedicated videos endpoint
+          if (videosResponse?.results?.length > 0) {
+            const tmdbTrailers = videosResponse.results.filter(
+              video => video.type === 'Trailer' && video.site === 'YouTube'
+            );
+            if (tmdbTrailers.length > 0) {
+              setTrailer(tmdbTrailers[0]);
+              trailerFound = true;
+            }
+          }
+
+          // 2. Check videos from movie details as fallback
+          if (!trailerFound && movieResponse.videos?.results?.length > 0) {
+            const detailsTrailers = movieResponse.videos.results.filter(
+              video => video.type === 'Trailer' && video.site === 'YouTube'
+            );
+            if (detailsTrailers.length > 0) {
+              setTrailer(detailsTrailers[0]);
+              trailerFound = true;
+            }
+          }
+
+          // 3. If no TMDB trailers found, search YouTube
+          if (!trailerFound) {
+            try {
+              const youtubeTrailer = await searchMovieTrailer(
+                movieResponse.title,
+                movieResponse.release_date ? new Date(movieResponse.release_date).getFullYear() : null
+              );
+              if (youtubeTrailer) {
+                setTrailer({
+                  key: youtubeTrailer.id,
+                  name: youtubeTrailer.title,
+                  site: 'YouTube',
+                  type: 'Trailer',
+                  official: youtubeTrailer.title.toLowerCase().includes('official')
+                });
+                trailerFound = true;
+              }
+            } catch (ytError) {
+              console.warn('Failed to fetch YouTube trailer:', ytError);
+            }
+          }
+
+        } catch (err) {
+          console.error('Error fetching movie details:', err);
+          setError(err.message || 'Failed to load movie details. Please try again later.');
+          throw err;
+        }
       } catch (err) {
-        console.error('Error fetching movie details:', err);
-        setError('Failed to load movie details. Please try again later.');
+        // This catch block will handle any error that was re-thrown
       } finally {
         setLoading(false);
       }
@@ -37,7 +110,7 @@ const MovieDetails = () => {
     if (id) {
       fetchMovieDetails();
     }
-  }, [id]);
+  }, [id]); // Remove trailer from dependency array to prevent re-renders
 
   if (loading) {
     return (
@@ -72,11 +145,15 @@ const MovieDetails = () => {
   };
 
   return (
-    <div className="movie-details-container">
+    <div className="movie-details-container" data-barba-namespace="movie-details">
       {backdropUrl && (
         <div
           className="backdrop"
-          style={{ backgroundImage: `url(${backdropUrl})` }}
+          style={{
+            backgroundImage: `url(${backdropUrl})`,
+            willChange: 'transform',
+            backfaceVisibility: 'hidden'
+          }}
         />
       )}
 
@@ -84,10 +161,34 @@ const MovieDetails = () => {
         <div className="movie-details-header">
           <div className="movie-poster-container">
             <img src={posterUrl} alt={movie.title} className="movie-poster-large" />
+            <div className="movie-poster-overlay"></div>
+            {isAuthenticated && (
+              <div className="poster-actions">
+                <button
+                  className={`action-button ${isInWatchlist(movie.id) ? 'in-watchlist' : ''}`}
+                  onClick={() => isInWatchlist(movie.id)
+                    ? removeFromWatchlist(movie.id)
+                    : addToWatchlist(movie)
+                  }
+                >
+                  {isInWatchlist(movie.id) ? 'Remove from Watchlist' : 'Add to Watchlist'}
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="movie-info-container">
-            <h1>{movie.title} {movie.release_date && <span>({new Date(movie.release_date).getFullYear()})</span>}</h1>
+            <h1>
+              <a
+                href={`https://www.google.com/search?q=${encodeURIComponent(movie.title)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'inherit', textDecoration: 'underline', cursor: 'pointer' }}
+              >
+                {movie.title}
+              </a>
+              {movie.release_date && <span> ({new Date(movie.release_date).getFullYear()})</span>}
+            </h1>
 
             <div className="movie-meta">
               {movie.release_date && (
@@ -126,25 +227,56 @@ const MovieDetails = () => {
               <h3>Overview</h3>
               <p>{movie.overview || 'No overview available.'}</p>
             </div>
-
-            {movie.credits && movie.credits.cast && movie.credits.cast.length > 0 && (
-              <div className="cast">
-                <h3>Cast</h3>
-                <div className="cast-list">
-                  {movie.credits.cast.slice(0, 6).map(person => (
-                    <div key={person.id} className="cast-member">
-                      {person.name} <span className="character">as {person.character}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
+        {/* New section for cast and trailer below the header */}
+        {movie.credits && movie.credits.cast && movie.credits.cast.length > 0 && (
+          <div className="cast-and-trailer-section">
+            <div className="cast">
+              <h3>Cast</h3>
+              <div className="cast-list">
+                {movie.credits.cast.slice(0, 6).map(person => (
+                  <div
+                    key={person.id}
+                    className="cast-member"
+                  >
+                    <div className="cast-info">
+                      <div
+                        className="cast-name-container"
+                        onClick={() => searchOnGoogle(person.name)}
+                      >
+                        <div className="cast-name">{person.name}</div>
+                        {person.profile_path && (
+                          <div className="cast-image-hover">
+                            <img
+                              src={`https://image.tmdb.org/t/p/w185${person.profile_path}`}
+                              alt={person.name}
+                              loading="lazy"
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <span className="character">as {person.character}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <h1 className="trailer-title">Official Trailer</h1>
+            <div className="trailer-inline-box">
+              {trailer ? (
+                <YouTubePlayer videoId={trailer.key} width="100%" height="100%" />
+              ) : (
+                <div className="trailer-placeholder">No trailer available.</div>
+              )}
+            </div>
+          </div>
+        )}
+
         {recommendations.length > 0 && (
           <div className="recommendations-section">
-            <h2>Recommendations</h2>
+            <h2>You Might Also Like</h2>
             <div className="movie-grid">
               {recommendations.slice(0, 6).map(movie => (
                 <MovieCard key={movie.id} movie={movie} />
@@ -155,7 +287,7 @@ const MovieDetails = () => {
 
         {contentRecommendations.length > 0 && (
           <div className="recommendations-section">
-            <h2>Content-Based Recommendations</h2>
+            <h2>More Recommendations</h2>
             <div className="movie-grid">
               {contentRecommendations.slice(0, 6).map(movie => (
                 <MovieCard key={movie.id} movie={movie} />

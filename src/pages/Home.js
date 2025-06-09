@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
-import { getTrendingMovies, getPopularMovies } from '../services/tmdbApi';
+import { getTrendingMovies, getUpcomingMovies } from '../services/tmdbApi';
 import './Home.css';
 
 const Home = () => {
   const [trendingMovies, setTrendingMovies] = useState([]);
-  const [popularMovies, setPopularMovies] = useState([]);
+  const [upcomingMovies, setUpcomingMovies] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,13 +16,14 @@ const Home = () => {
     const fetchMovies = async () => {
       try {
         setLoading(true);
-        const [trendingResponse, popularResponse] = await Promise.all([
+        const [trendingResponse, upcomingResponse] = await Promise.all([
           getTrendingMovies(),
-          getPopularMovies()
+          getUpcomingMovies()
         ]);
 
-        setTrendingMovies(trendingResponse.results || []);
-        setPopularMovies(popularResponse.results || []);
+        // Only take the first 6 movies to improve performance
+        setTrendingMovies((trendingResponse.results || []).slice(0, 6));
+        setUpcomingMovies((upcomingResponse.results || []).slice(0, 6));
         setError(null);
       } catch (err) {
         console.error('Error fetching movies:', err);
@@ -35,6 +36,19 @@ const Home = () => {
     fetchMovies();
   }, []);
 
+  // Memoize the movie cards to prevent unnecessary re-renders
+  const trendingMovieCards = useMemo(() => {
+    return trendingMovies.map((movie) => (
+      <MovieCard key={movie.id} movie={movie} />
+    ));
+  }, [trendingMovies]);
+
+  const upcomingMovieCards = useMemo(() => {
+    return upcomingMovies.map((movie) => (
+      <MovieCard key={movie.id} movie={movie} />
+    ));
+  }, [upcomingMovies]);
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -43,7 +57,7 @@ const Home = () => {
   };
 
   return (
-    <div className="home-container">
+    <div className="home-container" data-barba-namespace="home">
       <section className="hero-section">
         <div className="hero-content">
           <h1>Find Your Next Favorite Movie</h1>
@@ -74,18 +88,14 @@ const Home = () => {
           <section className="trending-section">
             <h2>Trending This Week</h2>
             <div className="movie-grid">
-              {trendingMovies.slice(0, 6).map((movie) => (
-                <MovieCard key={movie.id} movie={movie} />
-              ))}
+              {trendingMovieCards}
             </div>
           </section>
 
-          <section className="popular-section">
-            <h2>Popular Movies</h2>
+          <section className="upcoming-section">
+            <h2>Upcoming Movies</h2>
             <div className="movie-grid">
-              {popularMovies.slice(0, 6).map((movie) => (
-                <MovieCard key={movie.id} movie={movie} />
-              ))}
+              {upcomingMovieCards}
             </div>
           </section>
         </>

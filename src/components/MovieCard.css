@@ -1,23 +1,26 @@
 .movie-card {
-  width: 100%;
-  border-radius: 8px;
+  width: 260px;
+  border-radius: 12px;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   background-color: var(--card-background);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   position: relative;
-  min-width: 150px;
-  max-width: 100%;
+  min-width: 240px;
+  max-width: 320px;
   margin: 0 auto;
   padding: 0;
   display: flex;
   flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  will-change: transform, box-shadow;
 }
 
 .movie-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.8);
+  /* Hover animation is now handled by GSAP in the component */
 }
+
+/* Hover animation is now handled by GSAP in the component */
 
 .movie-card a {
   text-decoration: none;
@@ -31,20 +34,42 @@
   position: relative;
   width: 100%;
   height: 0;
-  padding-bottom: 150%; /* 2:3 aspect ratio for movie posters */
+  padding-bottom: 160%; /* Increased from 150% for taller posters */
   overflow: hidden;
-  border-radius: 8px 8px 0 0;
+  border-radius: 12px 12px 0 0;
+  background-color: #0a1020; /* Placeholder color while image loads */
 }
 
-.movie-poster::after {
+.movie-poster::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, rgba(0,0,0,0) 70%, rgba(0,0,0,0.8) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--accent-color-rgb), 0.3) 0%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
   pointer-events: none;
+}
+
+.movie-poster::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(to bottom,
+    transparent,
+    var(--card-background));
+  pointer-events: none;
+  z-index: 1;
 }
 
 .movie-poster img {
@@ -54,11 +79,42 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+  /* Image optimization */
 }
 
 .movie-card:hover .movie-poster img {
-  transform: scale(1.1);
+  transform: scale(1.08);
+}
+
+.movie-card:hover .movie-poster::before {
+  opacity: 1;
+}
+
+/* Add a "View Details" text that appears on hover */
+.movie-poster .view-details {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  color: white;
+  font-weight: bold;
+  background-color: rgba(var(--accent-color-rgb), 0.8);
+  padding: 8px 16px;
+  border-radius: 20px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 2;
+  pointer-events: none;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.movie-card:hover .movie-poster .view-details {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
 }
 
 .movie-rating {
@@ -71,14 +127,45 @@
   border-radius: 4px;
   font-weight: bold;
   z-index: 1;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: clamp(0.7rem, 2vw, 0.9rem);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.watchlist-button {
+  position: absolute;
+  bottom: var(--spacing-sm);
+  right: var(--spacing-sm);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: bold;
+  z-index: 2;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.watchlist-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.watchlist-button.in-watchlist {
+  background-color: var(--success-color);
 }
 
 .movie-info {
-  padding: var(--spacing-sm) var(--spacing-xs);
+  padding: var(--spacing-sm);
   background-color: var(--card-background);
-  border-top: 2px solid var(--accent-color);
+  border-top: 1px solid var(--hover-color);
   flex-grow: 1;
   display: flex;
   flex-direction: column;
@@ -86,19 +173,21 @@
 }
 
 .movie-info h3 {
-  font-size: clamp(0.8rem, 2.5vw, 1rem);
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
   margin-bottom: var(--spacing-xs);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-family: 'Courier New', Courier, monospace;
-  font-weight: bold;
+  font-family: 'Space Mono', monospace;
+  font-weight: 600;
+  color: var(--text-color);
 }
 
 .release-date {
   color: var(--secondary-text-color);
   font-size: clamp(0.7rem, 2vw, 0.9rem);
-  font-family: 'Courier New', Courier, monospace;
+  font-family: 'Space Mono', monospace;
+  opacity: 0.8;
 }
 
 /* Responsive adjustments */

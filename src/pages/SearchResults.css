@@ -1,14 +1,14 @@
 .search-results-container {
-  padding: var(--spacing-lg) 0;
-  width: var(--container-width);
-  max-width: var(--container-max-width);
-  margin: 0 auto;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
 .search-results-container h1 {
   font-size: clamp(1.5rem, 4vw, 2.5rem);
   margin-bottom: var(--spacing-lg);
-  font-family: 'Courier New', Courier, monospace;
+  font-family: 'Space Mono', monospace;
   color: var(--accent-color);
   text-transform: uppercase;
   letter-spacing: clamp(1px, 0.2vw, 2px);
@@ -39,16 +39,28 @@
 .no-results p {
   margin-bottom: var(--spacing-md);
   font-size: clamp(1rem, 3vw, 1.3rem);
-  font-family: 'Courier New', Courier, monospace;
+  font-family: 'Space Mono', monospace;
   color: var(--secondary-text-color);
   line-height: 1.6;
+}
+
+.error-message {
+  text-align: center;
+  padding: var(--spacing-xl) var(--spacing-lg);
+  background-color: rgba(18, 18, 18, 0.7);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid #333;
+  margin-top: var(--spacing-lg);
+  color: var(--secondary-text-color);
+  font-size: clamp(1rem, 3vw, 1.3rem);
+  font-family: 'Space Mono', monospace;
 }
 
 /* Extra small devices (phones, 480px and down) */
 @media (max-width: 480px) {
   .search-results-container {
-    padding: var(--spacing-md) 0;
-    width: 95%;
+    padding: var(--spacing-md) var(--spacing-sm);
   }
 
   .search-results-container h1 {
@@ -76,8 +88,7 @@
 /* Small devices (tablets, 481px to 768px) */
 @media (min-width: 481px) and (max-width: 768px) {
   .search-results-container {
-    padding: var(--spacing-md) 0;
-    width: 90%;
+    padding: var(--spacing-md) var(--spacing-md);
   }
 
   .search-results-container h1 {
