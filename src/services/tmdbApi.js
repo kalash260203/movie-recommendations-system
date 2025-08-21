@@ -146,6 +146,14 @@ export const getPopularMovies = async (page = 1) => {
     return response.data;
   } catch (error) {
     console.error('Error fetching popular movies:', error);
+    
+    // Check if it's a network/ISP blocking issue
+    if (error.code === 'ENOTFOUND' || error.code === 'ETIMEDOUT' || error.response?.status === 0) {
+      const networkError = new Error('Unable to connect to movie database. This might be due to network restrictions. Please try using a VPN or different network connection.');
+      networkError.isNetworkError = true;
+      throw networkError;
+    }
+    
     throw error;
   }
 };
@@ -274,6 +282,14 @@ export const searchMovies = async (query) => {
     return response.data;
   } catch (error) {
     console.error('Error searching movies:', error);
+    
+    // Check if it's a network/ISP blocking issue
+    if (error.code === 'ENOTFOUND' || error.code === 'ETIMEDOUT' || error.response?.status === 0) {
+      const networkError = new Error('Unable to connect to movie database. This might be due to network restrictions. Please try using a VPN or different network connection.');
+      networkError.isNetworkError = true;
+      throw networkError;
+    }
+    
     throw error;
   }
 };
