@@ -1,0 +1,126 @@
+.watchlist-container {
+  padding: var(--spacing-lg) var(--spacing-xl);
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  min-height: 70vh;
+}
+
+.watchlist-container h1 {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  margin-bottom: var(--spacing-lg);
+  font-family: 'Space Mono', monospace;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  letter-spacing: clamp(1px, 0.2vw, 2px);
+  border-left: 4px solid var(--accent-color);
+  padding-left: var(--spacing-sm);
+  line-height: 1.3;
+}
+
+.watchlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+  width: 100%;
+}
+
+.empty-watchlist {
+  text-align: center;
+  padding: var(--spacing-xl);
+  background-color: rgba(18, 18, 18, 0.7);
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  margin-top: var(--spacing-lg);
+}
+
+.empty-watchlist p {
+  margin-bottom: var(--spacing-md);
+  font-size: clamp(1rem, 3vw, 1.3rem);
+  color: var(--secondary-text-color);
+}
+
+.watchlist-browse-button {
+  display: inline-block;
+  background-color: var(--accent-color);
+  color: white;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  font-family: 'Space Mono', monospace;
+  margin-top: var(--spacing-md);
+}
+
+.watchlist-browse-button:hover {
+  background-color: #ff3c5a;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4);
+}
+
+.watchlist-auth-message {
+  text-align: center;
+  padding: var(--spacing-xl);
+  background-color: rgba(18, 18, 18, 0.7);
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  margin-top: var(--spacing-lg);
+}
+
+.watchlist-auth-message h2 {
+  margin-bottom: var(--spacing-lg);
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  color: var(--text-color);
+}
+
+.watchlist-auth-buttons {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.watchlist-auth-button {
+  display: inline-block;
+  background-color: var(--accent-color);
+  color: white;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  font-family: 'Space Mono', monospace;
+}
+
+.watchlist-auth-button:hover {
+  background-color: #ff3c5a;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .watchlist-container {
+    padding: var(--spacing-md) var(--spacing-sm);
+  }
+  
+  .watchlist-container h1 {
+    font-size: 1.3rem;
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .watchlist-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm);
+  }
+  
+  .empty-watchlist, .watchlist-auth-message {
+    padding: var(--spacing-md);
+  }
+  
+  .watchlist-auth-button, .watchlist-browse-button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.9rem;
+  }
+}
